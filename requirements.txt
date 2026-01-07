@@ -14,3 +14,5 @@ python-multipart
 starlette
 requests
 itsdangerous
+passlib
+bcrypt
