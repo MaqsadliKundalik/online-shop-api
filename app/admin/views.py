@@ -102,6 +102,13 @@ class AdminUserAdmin(ModelView, model=AdminUser):
 
     form_excluded_columns = []
 
+    async def on_model_change(self, form, model, is_created):
+        # Agar parol o'zgartirilgan bo'lsa yoki yangi user bo'lsa - xeshlaymiz
+        if "password" in form:
+            raw_password = form.password.data
+            if raw_password:
+                model.set_password(raw_password)
+
 
 class CategoryAdmin(ModelView, model=Category):
     name = "Category"

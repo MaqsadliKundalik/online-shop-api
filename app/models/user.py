@@ -14,15 +14,12 @@ class AdminUser(Base):
     password: Mapped[str] = mapped_column(String(255))
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    def set_password(self, raw: str) -> None:
-        # OLDIN:
-        # self.password = bcrypt.hash(raw)
-        self.password = pbkdf2_sha256.hash(raw)
-
     def verify_password(self, raw: str) -> bool:
-        # OLDIN:
-        # return bcrypt.verify(raw, self.password)
-        return pbkdf2_sha256.verify(raw, self.password)
+        try:
+            return pbkdf2_sha256.verify(raw, self.password)
+        except ValueError:
+            # Hash noto'g'ri formatda bo'lsa (masalan, oddiy tekst), login rad etiladi
+            return False
 
     def __repr__(self) -> str:
         return f"<AdminUser {self.username}>"

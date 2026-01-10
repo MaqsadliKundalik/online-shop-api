@@ -1,166 +1,129 @@
-# scripts/seed_db.py
+# seed_db.py
 
 from random import randint, choice
-
 from faker import Faker
-
 from app.db.session import SessionLocal
 from app.models import Category, Product, Order, OrderItem, Customer
+from app.models.user import AdminUser
 
 fake = Faker("en_US")
 
+def seed_admins(db):
+    # 1. Superuser
+    admin = db.query(AdminUser).filter_by(username="admin").first()
+    if not admin:
+        print("Creating superuser 'admin'...")
+        admin = AdminUser(username="admin", is_superuser=True)
+        admin.set_password("admin123")
+        db.add(admin)
+    
+    # 2. Regular Admin
+    ruslan = db.query(AdminUser).filter_by(username="ruslan").first()
+    if not ruslan:
+        print("Creating regular admin 'ruslan'...")
+        ruslan = AdminUser(username="ruslan", is_superuser=False)
+        ruslan.set_password("ruslan123")
+        db.add(ruslan)
+    
+    db.commit()
 
-def seed_customers(db, count: int = 5):
-    existing_count = db.query(Customer).count()
-    if existing_count > 0:
-        print(f"Customers already exist ({existing_count} rows), skipping.")
+def seed_customers(db, count: int = 10):
+    if db.query(Customer).count() > 0:
         return
-
     for _ in range(count):
-        full_name = fake.name()
-        phone = fake.phone_number()
-        address = fake.address().replace("\n", ", ")
-
         customer = Customer(
-            full_name=full_name,
-            phone=phone,
-            default_address=address,
+            full_name=fake.name(),
+            phone=fake.phone_number(),
+            default_address=fake.address().replace("\n", ", "),
         )
         db.add(customer)
-
     db.commit()
     print(f"Created {count} customers.")
 
-
 def seed_categories(db):
-    existing_count = db.query(Category).count()
-    if existing_count > 0:
-        print(f"Categories already exist ({existing_count} rows), skipping.")
+    if db.query(Category).count() > 0:
         return
-
     categories_data = [
-        ("Ichimliklar", "piece"),
-        ("Shirinliklar", "piece"),
-        ("Mevalar", "weight"),
-        ("Sabzavotlar", "weight"),
+        ("Elektronika", "piece"),
+        ("Kiyim-kechak", "piece"),
+        ("Oziq-ovqat", "weight"),
+        ("Kitoblar", "piece"),
     ]
-
     for name, unit_type in categories_data:
         cat = Category(name=name, unit_type=unit_type)
         db.add(cat)
-
     db.commit()
     print(f"Created {len(categories_data)} categories.")
 
-
-def seed_products(db, products_per_category: int = 5):
-    existing_count = db.query(Product).count()
-    if existing_count > 0:
-        print(f"Products already exist ({existing_count} rows), skipping.")
+def seed_products(db, ppc: int = 10):
+    if db.query(Product).count() > 0:
         return
-
     categories = db.query(Category).all()
-    if not categories:
-        print("No categories found. Run seed_categories first.")
-        return
-
-    total = 0
     for cat in categories:
-        for _ in range(products_per_category):
-            name = f"{cat.name} - {fake.word().capitalize()}"
-            price = randint(10_000, 150_000)
-            description = fake.sentence(nb_words=8)
-
+        for _ in range(ppc):
             product = Product(
-                name=name,
-                price=price,
-                description=description,
+                name=f"{cat.name} {fake.word().capitalize()}",
+                price=randint(5000, 200000),
+                description=fake.sentence(),
                 status="active",
-                is_top=bool(randint(0, 1)),
-                category_id=cat.id,
-                image_path=None,
+                is_top=choice([True, False]),
+                category_id=cat.id
             )
             db.add(product)
-            total += 1
-
     db.commit()
-    print(f"Created {total} products.")
+    print("Created fake products.")
 
-
-def seed_orders(db, orders_count: int = 3):
-    existing_count = db.query(Order).count()
-    if existing_count > 0:
-        print(f"Orders already exist ({existing_count} rows), skipping.")
+def seed_orders(db, count: int = 15):
+    if db.query(Order).count() > 0:
         return
-
-    products = db.query(Product).all()
     customers = db.query(Customer).all()
-
-    if not products:
-        print("No products found. Run seed_products first.")
-        return
-
-    for _ in range(orders_count):
-        # agar customer bo'lsa - random birini olamiz, bo'lmasa guest
-        customer = choice(customers) if customers else None
-
-        if customer:
-            customer_name = customer.full_name
-            customer_phone = customer.phone
-            address = customer.default_address or fake.address().replace("\n", ", ")
-            customer_id = customer.id
-        else:
-            customer_name = fake.name()
-            customer_phone = fake.phone_number()
-            address = fake.address().replace("\n", ", ")
-            customer_id = None
-
+    products = db.query(Product).all()
+    for _ in range(count):
+        customer = choice(customers)
         order = Order(
-            customer_id=customer_id,
-            customer_name=customer_name,
-            customer_phone=customer_phone,
-            address=address,
-            status="new",
-            total_price=0,
+            customer_id=customer.id,
+            customer_name=customer.full_name,
+            customer_phone=customer.phone,
+            address=customer.default_address,
+            status=choice(["new", "completed", "cancelled"]),
+            total_price=0
         )
         db.add(order)
         db.flush()
-
-        total_price = 0
-        for _ in range(randint(2, 4)):
-            product = choice(products)
-            quantity = randint(1, 5)
-            unit_price = product.price
-            line_total = unit_price * quantity
-
+        
+        total = 0
+        for _ in range(randint(1, 3)):
+            p = choice(products)
+            qty = randint(1, 5)
             item = OrderItem(
                 order_id=order.id,
-                product_id=product.id,
-                product_name=product.name,
-                unit_price=unit_price,
-                quantity=quantity,
-                total_price=line_total,
+                product_id=p.id,
+                product_name=p.name,
+                unit_price=p.price,
+                quantity=qty,
+                total_price=p.price * qty
             )
             db.add(item)
-            total_price += line_total
-
-        order.total_price = total_price
-        db.add(order)
-
+            total += item.total_price
+        order.total_price = total
     db.commit()
-    print(f"Created {orders_count} fake orders.")
-
+    print(f"Created {count} orders.")
 
 def main():
     db = SessionLocal()
     try:
+        seed_admins(db)
         seed_customers(db)
         seed_categories(db)
-        seed_products(db, products_per_category=8)
-        seed_orders(db, orders_count=5)
+        seed_products(db)
+        seed_orders(db)
+        print("Database seeding completed.")
+    except Exception as e:
+        print(f"Error during seeding: {e}")
+        db.rollback()
     finally:
         db.close()
 
-
 if __name__ == "__main__":
     main()
+
