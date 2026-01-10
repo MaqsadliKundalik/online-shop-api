@@ -14,6 +14,9 @@ class AdminUser(Base):
     password: Mapped[str] = mapped_column(String(255))
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    def set_password(self, raw: str) -> None:
+        self.password = pbkdf2_sha256.hash(raw)
+
     def verify_password(self, raw: str) -> bool:
         try:
             return pbkdf2_sha256.verify(raw, self.password)
