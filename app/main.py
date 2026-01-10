@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.core.config import settings
 from app.db.session import engine
@@ -42,6 +43,8 @@ app = FastAPI(
     version="1.0.0",
     openapi_tags=tags_metadata,
 )
+
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # statik fayllar
 app.mount("/static", StaticFiles(directory="static"), name="static")
