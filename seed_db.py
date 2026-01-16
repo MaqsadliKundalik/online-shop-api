@@ -24,7 +24,6 @@ def seed_admins(db):
         ruslan = AdminUser(username="ruslan", is_superuser=False)
         ruslan.set_password("ruslan123")
         db.add(ruslan)
-    
     db.commit()
 
 def seed_customers(db, count: int = 10):
