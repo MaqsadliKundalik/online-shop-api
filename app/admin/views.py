@@ -49,7 +49,7 @@ class ProductAdmin(ModelView, model=Product):
         "image_path": FileField,
     }
 
-    async def on_model_change(self, form, model, is_created):
+    async def on_model_change(self, form, model, is_created, request):
         """
         Form submit bo'lganda faylni diskka saqlab, model.image_path ga nomini yozamiz.
         """
