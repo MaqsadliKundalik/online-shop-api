@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     SECRET_KEY: str = "default-secret-key-change-in-production-123456789"
     # Hozircha SQLite
-    DATABASE_URL: str = "postgresql://tbozozuz_bozorchi2:oddiyparol123@localhost/tbozozuz_bozoruz"
+    DATABASE_URL: str = "postgresql://tbozozuz_bozrchi2:oddiyparol123@localhost/tbozozuz_bozoruz"
     class Config:
         env_file = ".env"
 
