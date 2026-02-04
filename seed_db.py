@@ -68,7 +68,8 @@ def seed_products(db, ppc: int = 10):
                 description=fake.sentence(),
                 status="active",
                 is_top=choice([True, False]),
-                category_id=cat.id
+                category_id=cat.id,
+                image_path=f"https://picsum.photos/seed/{randint(1, 10000)}/400/400"
             )
             db.add(product)
     db.commit()
