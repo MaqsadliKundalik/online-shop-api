@@ -12,6 +12,7 @@ from pathlib import Path
 from wtforms import FileField
 from sqladmin import ModelView
 from app.core.config import settings
+from markupsafe import Markup
 
 from app.models.product import Product
 
@@ -48,6 +49,10 @@ class ProductAdmin(ModelView, model=Product):
     # image_path ustunini FileField qilib beramiz
     form_overrides = {
         "image_path": FileField,
+    }
+
+    column_formatters = {
+        Product.image_path: lambda m, a: Markup(f'<img src="{m.image_path}" width="100" style="object-fit: cover; border-radius: 5px;" />') if m.image_path else ""
     }
 
     async def on_model_change(self, data, model, is_created, request):
