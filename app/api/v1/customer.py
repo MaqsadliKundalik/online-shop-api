@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.models.customer import Customer
-from app.schemas.customer import CustomerCreate, CustomerOut
+from app.schemas.customer import CustomerCreate, CustomerOut, CustomerLogin
 
 router = APIRouter()
 
@@ -29,10 +29,45 @@ def create_customer(
         phone=payload.phone,
         default_address=payload.default_address,
     )
+    customer.set_password(payload.password)
     db.add(customer)
     db.commit()
     db.refresh(customer)
     return customer
+
+
+@router.post(
+    "/customers/login",
+    summary="Mijoz login qilishi",
+    description="Telefon raqami va parol orqali login qilish.",
+)
+def login_customer(
+    payload: CustomerLogin,
+    db: Session = Depends(get_db),
+):
+    customer = db.query(Customer).filter(Customer.phone == payload.phone).first()
+    if not customer or not customer.verify_password(payload.password):
+        raise HTTPException(status_code=400, detail="Phone or password incorrect")
+    
+    # Kelajakda JWT token qaytarish mumkin
+    return {
+        "status": "success",
+        "message": "Login successful",
+        "customer": {
+            "id": customer.id,
+            "full_name": customer.full_name,
+            "phone": customer.phone
+        }
+    }
+
+
+@router.post(
+    "/customers/logout",
+    summary="Mijoz logout qilishi",
+)
+def logout_customer():
+    # Stateless API uchun logout asosan client-side handled
+    return {"status": "success", "message": "Logout successful"}
 
 
 @router.get(

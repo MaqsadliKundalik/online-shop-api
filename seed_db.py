@@ -27,21 +27,22 @@ def seed_admins(db):
     db.commit()
 
 def seed_customers(db, count: int = 10):
-    if db.query(Customer).count() > 0:
-        return
+    db.query(Customer).delete()
+    print("Old customers deleted.")
     for _ in range(count):
         customer = Customer(
             full_name=fake.name(),
-            phone=fake.phone_number(),
+            phone=fake.phone_number()[:30], # ensure length constraint
             default_address=fake.address().replace("\n", ", "),
         )
+        customer.set_password("customer123")
         db.add(customer)
     db.commit()
-    print(f"Created {count} customers.")
+    print(f"Created {count} customers with default password 'customer123'.")
 
 def seed_categories(db):
-    if db.query(Category).count() > 0:
-        return
+    db.query(Category).delete()
+    print("Old categories deleted.")
     categories_data = [
         ("Elektronika", "piece"),
         ("Kiyim-kechak", "piece"),
@@ -55,8 +56,8 @@ def seed_categories(db):
     print(f"Created {len(categories_data)} categories.")
 
 def seed_products(db, ppc: int = 10):
-    if db.query(Product).count() > 0:
-        return
+    db.query(Product).delete()
+    print("Old products deleted.")
     categories = db.query(Category).all()
     for cat in categories:
         for _ in range(ppc):
@@ -73,8 +74,9 @@ def seed_products(db, ppc: int = 10):
     print("Created fake products.")
 
 def seed_orders(db, count: int = 15):
-    if db.query(Order).count() > 0:
-        return
+    db.query(OrderItem).delete()
+    db.query(Order).delete()
+    print("Old orders and items deleted.")
     customers = db.query(Customer).all()
     products = db.query(Product).all()
     for _ in range(count):

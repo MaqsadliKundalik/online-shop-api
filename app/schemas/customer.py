@@ -10,11 +10,16 @@ class CustomerBase(BaseModel):
 
 
 class CustomerCreate(CustomerBase):
-    pass
+    password: str
+
+
+class CustomerLogin(BaseModel):
+    phone: str
+    password: str
 
 
 class CustomerOut(CustomerBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

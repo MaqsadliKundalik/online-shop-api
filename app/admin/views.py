@@ -91,6 +91,14 @@ class CustomerAdmin(ModelView, model=Customer):
     column_searchable_list = [Customer.full_name, Customer.phone]
     column_sortable_list = [Customer.id, Customer.created_at]
 
+    form_columns = ["full_name", "phone", "password", "default_address"]
+    
+    async def on_model_change(self, form, model, is_created):
+        if "password" in form:
+            raw_password = form.password.data
+            if raw_password:
+                model.set_password(raw_password)
+
 class AdminUserAdmin(ModelView, model=AdminUser):
     name = "Admin"
     name_plural = "Admins"
