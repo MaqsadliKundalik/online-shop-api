@@ -11,6 +11,7 @@ from pathlib import Path
 
 from wtforms import FileField
 from sqladmin import ModelView
+from app.core.config import settings
 
 from app.models.product import Product
 
@@ -74,7 +75,7 @@ class ProductAdmin(ModelView, model=Product):
                 f.write(content)
 
             # model ustuniga faqat relative path/filename saqlaymiz
-            model.image_path = f"/static/images/{filename}"
+            model.image_path = f"{settings.BASE_URL}/static/images/{filename}"
         else:
             # agar formda fayl yuborilmagan bo'lsa va eski record bo'lsa,
             # mavjud image_path ni o'zgartirmaymiz
