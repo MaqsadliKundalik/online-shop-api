@@ -2,7 +2,8 @@
 
 from random import randint, choice
 from faker import Faker
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, engine
+from app.db.base import Base
 from app.models import Category, Product, Order, OrderItem, Customer
 from app.models.user import AdminUser
 
@@ -111,6 +112,8 @@ def seed_orders(db, count: int = 15):
     print(f"Created {count} orders.")
 
 def main():
+    print("Creating tables if they don't exist...")
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         seed_admins(db)
