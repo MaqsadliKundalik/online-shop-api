@@ -56,6 +56,10 @@ class ProductAdmin(ModelView, model=Product):
         file = data.get("image_path")
 
         if file and hasattr(file, "filename") and file.filename:
+            # Fayl obyekti modelga yozilib qolmasligi uchun uni data dan o'chiramiz
+            if "image_path" in data:
+                del data["image_path"]
+            
             ext = file.filename.split(".")[-1]
             filename = f"{uuid4()}.{ext}"
 
