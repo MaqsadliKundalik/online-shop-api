@@ -49,13 +49,13 @@ class ProductAdmin(ModelView, model=Product):
         "image_path": FileField,
     }
 
-    async def on_model_change(self, form, model, is_created, request):
+    async def on_model_change(self, data, model, is_created, request):
         """
         Form submit bo'lganda faylni diskka saqlab, model.image_path ga nomini yozamiz.
         """
-        file = form.image_path.data  # bu UploadFile emas, werkzeug FileStorage bo'ladi
+        file = data.get("image_path")
 
-        if file:
+        if file and hasattr(file, "filename") and file.filename:
             ext = file.filename.split(".")[-1]
             filename = f"{uuid4()}.{ext}"
 
