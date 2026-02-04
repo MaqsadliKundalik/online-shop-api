@@ -56,7 +56,8 @@ def login_customer(
         "customer": {
             "id": customer.id,
             "full_name": customer.full_name,
-            "phone": customer.phone
+            "phone": customer.phone,
+            "default_address": customer.default_address,
         }
     }
 

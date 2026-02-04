@@ -65,11 +65,12 @@ class ProductAdmin(ModelView, model=Product):
             file_path = upload_dir / filename
 
             # faylni saqlash
+            content = await file.read()
             with file_path.open("wb") as f:
-                f.write(file.read())
+                f.write(content)
 
             # model ustuniga faqat relative path/filename saqlaymiz
-            model.image_path = f"images/{filename}"
+            model.image_path = f"/static/images/{filename}"
         else:
             # agar formda fayl yuborilmagan bo'lsa va eski record bo'lsa,
             # mavjud image_path ni o'zgartirmaymiz
