@@ -77,3 +77,9 @@ class OrderItem(Base):
 
     def __repr__(self) -> str:
         return f"<OrderItem order_id={self.order_id} product_id={self.product_id}>"
+
+    @property
+    def image(self):
+        if self.product:
+            return self.product.image
+        return None

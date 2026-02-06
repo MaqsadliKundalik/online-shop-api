@@ -51,6 +51,7 @@ def _build_cart_out(cart: Optional[Cart], session_id: str) -> CartOut:
                 quantity=item.quantity,
                 unit_price=item.unit_price,
                 total_price=line_total,
+                image=item.image,
             )
         )
 

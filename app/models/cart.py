@@ -52,3 +52,9 @@ class CartItem(Base):
 
     def __repr__(self) -> str:
         return f"<CartItem cart_id={self.cart_id} product_id={self.product_id}>"
+
+    @property
+    def image(self):
+        if self.product:
+            return self.product.image
+        return None

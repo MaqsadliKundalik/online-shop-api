@@ -22,6 +22,7 @@ class CartItemOut(BaseModel):
     quantity: int
     unit_price: int
     total_price: int
+    image: Optional[str] = None
 
     class Config:
         orm_mode = True

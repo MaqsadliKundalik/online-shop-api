@@ -17,6 +17,7 @@ class ProductBase(BaseModel):
 class ProductOut(ProductBase):
     id: int
     category: CategoryOut
+    image: Optional[str] = None
 
     class Config:
         orm_mode = True

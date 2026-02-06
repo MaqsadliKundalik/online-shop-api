@@ -27,6 +27,7 @@ class OrderItemOut(BaseModel):
     unit_price: int
     quantity: int
     total_price: int
+    image: Optional[str] = None
 
     class Config:
         orm_mode = True
