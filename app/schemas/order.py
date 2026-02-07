@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -41,6 +42,7 @@ class OrderOut(BaseModel):
     address: str
     status: str
     total_price: int
+    created_at: datetime
     items: List[OrderItemOut]
 
     class Config:

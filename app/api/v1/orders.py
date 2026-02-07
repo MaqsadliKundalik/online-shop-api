@@ -1,5 +1,5 @@
-# app/api/v1/orders.py
-from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -106,6 +106,60 @@ def create_order(
     db.refresh(order)
 
     return order
+
+
+
+@router.get(
+    "/orders/history",
+    response_model=List[OrderOut],
+    summary="Mijozning buyurtma tarixini olish",
+    responses={
+        200: {
+            "description": "Muvaffaqiyatli javob",
+            "content": {
+                "application/json": {
+                    "example": [
+                        {
+                            "id": 1024,
+                            "customer_id": 55,
+                            "customer_name": "Gulnoza",
+                            "customer_phone": "+998901234567",
+                            "address": "Tashkent, Chilanzar",
+                            "status": "confirmed",
+                            "total_price": 12000000,
+                            "created_at": "2023-11-15T10:30:00",
+                            "items": [
+                                {
+                                    "id": 501,
+                                    "product_id": 12,
+                                    "product_name": "iPhone 15 Pro",
+                                    "unit_price": 12000000,
+                                    "quantity": 1,
+                                    "total_price": 12000000,
+                                    "image": "/static/products/iphone15.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+)
+def get_order_history(
+    customer_id: int = Query(...),
+    db: Session = Depends(get_db),
+):
+    """
+    Mijozning buyurtma tarixini olish.
+    """
+    orders = (
+        db.query(Order)
+        .filter(Order.customer_id == customer_id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+    return orders
 
 
 @router.get("/orders/{order_id}", response_model=OrderOut)
