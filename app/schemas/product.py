@@ -11,7 +11,7 @@ class ProductBase(BaseModel):
     description: Optional[str] = None
     status: str
     is_top: bool
-    image_path: Optional[str] = None
+    image: Optional[str] = None
 
 
 class ProductOut(ProductBase):
