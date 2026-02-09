@@ -24,6 +24,8 @@ class Product(Base):
     @property
     def image(self):
         if self.image_path:
+            if self.image_path.startswith("http"):
+                return self.image_path
             from app.core.config import settings
             return f"{settings.BASE_URL}/static/{self.image_path}"
         return None
