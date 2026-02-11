@@ -19,7 +19,6 @@ def create_customer(
     payload: CustomerCreate,
     db: Session = Depends(get_db),
 ):
-    # telefon bo'yicha mavjudligini tekshiramiz
     existing = db.query(Customer).filter(Customer.phone == payload.phone).first()
     if existing:
         raise HTTPException(status_code=400, detail="Customer with this phone already exists")
@@ -49,7 +48,6 @@ def login_customer(
     if not customer or not customer.verify_password(payload.password):
         raise HTTPException(status_code=400, detail="Phone or password incorrect")
     
-    # Kelajakda JWT token qaytarish mumkin
     return {
         "status": "success",
         "message": "Login successful",
@@ -67,7 +65,6 @@ def login_customer(
     summary="Mijoz logout qilishi",
 )
 def logout_customer():
-    # Stateless API uchun logout asosan client-side handled
     return {"status": "success", "message": "Logout successful"}
 
 

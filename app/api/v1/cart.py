@@ -90,7 +90,6 @@ def add_or_update_cart_item(
 
     Agar shu mahsulot savatga allaqachon qo'shilgan bo'lsa — quantity yangilanadi.
     """
-    # mahsulotni tekshiramiz
     product = (
         db.query(Product)
         .filter(Product.id == payload.product_id, Product.status == "active")
@@ -111,11 +110,9 @@ def add_or_update_cart_item(
     )
 
     if item:
-        # mavjud bo'lsa sonini yangilaymiz
         item.quantity = payload.quantity
-        item.unit_price = product.price  # hozirgi narxni yangilab qo'yish mumkin
+        item.unit_price = product.price
     else:
-        # yangi item
         item = CartItem(
             cart_id=cart.id,
             product_id=product.id,
@@ -206,10 +203,8 @@ def clear_cart(
         .first()
     )
     if not cart:
-        # bo'sh savat qaytaramiz
         return CartOut(id=None, session_id=session_id, items=[], total_price=0)
 
-    # barcha itemlarni o'chiramiz
     for item in list(cart.items):
         db.delete(item)
 

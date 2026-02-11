@@ -38,18 +38,14 @@ def create_order(
 
     customer: Customer | None = None
 
-    # 1. Agar customer_id bo'lsa - bazadan topamiz
     if payload.customer_id is not None:
         customer = db.query(Customer).filter(Customer.id == payload.customer_id).first()
         if not customer:
             raise HTTPException(status_code=400, detail="Customer not found")
-
-        # Agar ism/telefon/address berilmagan bo'lsa, customer ma'lumotlari bilan to'ldiramiz
         name = payload.customer_name or customer.full_name
         phone = payload.customer_phone or customer.phone
         address = payload.address or customer.default_address
     else:
-        # customer_id bo'lmasa, payload'dan kelgan ma'lumotlar majburiy
         name = payload.customer_name
         phone = payload.customer_phone
         address = payload.address
@@ -60,7 +56,6 @@ def create_order(
             detail="Customer name, phone and address are required",
         )
 
-    # mahsulotlarni bazadan topamiz
     product_ids = {item.product_id for item in payload.items}
     products = (
         db.query(Product)
@@ -170,5 +165,4 @@ def get_order(
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    # relationship orqali items ham keladi
     return order
