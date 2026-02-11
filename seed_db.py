@@ -10,7 +10,6 @@ from app.models.user import AdminUser
 fake = Faker("en_US")
 
 def seed_admins(db):
-    # 1. Superuser
     admin = db.query(AdminUser).filter_by(username="admin").first()
     if not admin:
         print("Creating superuser 'admin'...")
@@ -18,7 +17,6 @@ def seed_admins(db):
         admin.set_password("admin123")
         db.add(admin)
     
-    # 2. Regular Admin
     ruslan = db.query(AdminUser).filter_by(username="ruslan").first()
     if not ruslan:
         print("Creating regular admin 'ruslan'...")
@@ -33,7 +31,7 @@ def seed_customers(db, count: int = 10):
     for _ in range(count):
         customer = Customer(
             full_name=fake.name(),
-            phone=fake.phone_number()[:30], # ensure length constraint
+            phone=fake.phone_number()[:30],
             default_address=fake.address().replace("\n", ", "),
         )
         customer.set_password("customer123")
